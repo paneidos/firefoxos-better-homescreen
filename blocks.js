@@ -77,3 +77,27 @@ AppIcon.prototype = {
     this.imageNode.src = this.appIcon;
   }
 };
+
+function DemoWidget() {
+  this.node = document.createElement("div");
+  this.node.classList.add('animation');
+  this.width = 3;
+  this.height = 1;
+  this.type = "DemoWidget";
+}
+DemoWidget.prototype = {
+  rebindEvents: function() {
+    this.node.onclick = function() {
+      alert("You clicked the widget");
+    }
+  },
+  serialize: function() {
+    return {};
+  },
+  deserialize: function() {
+    return DemoWidget;
+  }
+}
+DemoWidget.deserialize = function() {
+  return new DemoWidget();
+}
