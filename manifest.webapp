@@ -1,0 +1,29 @@
+{
+  "name": "Better Homescreen",
+  "description": "FirefoxOS Homescreen with widgets",
+  "launch_path": "/index.html",
+  "type": "certified",
+  "role": "homescreen",
+  "developer": {
+    "name": "Sernin van de Krol",
+    "url": "https://github.com/paneidos/"
+  },
+  "permissions": {
+    "webapps-manage":{},
+    "systemXHR":{},
+    "settings":{"access": "readonly"}
+  },
+  "locales": {
+    "en-US": {
+    "name": "Better Homescreen",
+    "description": "FirefoxOS Homescreen with widgets"
+    }
+  },
+  "default_locale": "en-US",
+  "icons": {
+    "30": "/style/icons/icon.png"
+  },
+  "orientation": "portrait-primary",
+  "activities": {},
+  "messages": []
+}
