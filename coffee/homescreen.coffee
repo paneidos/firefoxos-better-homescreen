@@ -1,4 +1,3 @@
-console.log "Load HomeScreen"
 TILES_X = 4
 TILES_Y = 4
 HOTBAR_APPS = [
@@ -10,18 +9,22 @@ HOTBAR_APPS = [
 
 global = @
 
+touchFromEventWithIdentifier = (event, identifier)->
+  for touch in event.touches
+    return touch if touch.identifier == identifier
+  for touch in event.changedTouches
+    return touch if touch.identifier == identifier
+  null
+
 class HotBar
   constructor: (@width)->
-    console.log("Init HotBar")
     @tiles = []
     i = 0
     while i < @width
       @tiles.push(null)
       i += 1
-    console.log @tiles
     @node = document.querySelector('#hotbar')
     @tileNodes = @tiles.map (val, index)->
-      console.log("Tile ",index)
       node = document.createElement("div")
       node.classList.add("tileContainer")
       node
@@ -49,7 +52,6 @@ class HotBar
     @tiles.some (tile)->
       tile == null
   placeApp: (appIcon, index)->
-    console.log "X"
     @tiles[index] = appIcon
     @tileNodes[index].appendChild(appIcon.node)
     appIcon.rebindEvents()
@@ -243,7 +245,14 @@ class Layout
     homescreen
   addNewHomeScreen: ->
     @addHomeScreen(new HomeScreen(@tilesX, @tilesY))
+  startEditMode: ->
+    @homescreensNode.classList.add("edit-mode")
+    @editMode = yes
+  stopEditMode: ->
+    @homescreensNode.classList.remove("edit-mode")
+    @editMode = no
   gotoHomeScreen: (index)->
+    console.log "Goto screen", index
     index = 0 if index < 0
     index = @homescreens.length - 1 if index >= @homescreens.length
     translateX = -@homescreensScroller.clientWidth * index
@@ -253,15 +262,19 @@ class Layout
     @movingHomeScreen = no
     @currentTouch = null
     @currentScreen = 0
+    @editMode = no
     @readData()
     @bindEvents()
   bindEvents: ->
     swipeNode = @homescreensNode
     swipeNode.ontouchstart = (e)=>
+      # return if @editMode
       @currentTouch = e.touches[0]
     swipeNode.ontouchmove = (e)=>
-      newTouch = e.touches[0]
+      # return if @editMode
+      newTouch = touchFromEventWithIdentifier(e, @currentTouch.identifier)
       if @movingHomeScreen
+        e.preventDefault()
         @homescreensScroller.style.transform = "translateX(" + (newTouch.pageX - @currentTouch.pageX) + "px)"
       else
         xDiff = Math.abs(newTouch.pageX - @currentTouch.pageX)
@@ -269,11 +282,12 @@ class Layout
         if xDiff > 2 || yDiff > 2
           @homescreensScroller.style.transitionDuration = "0s"
           @movingHomeScreen = yes
+          e.preventDefault()
     swipeNode.ontouchend = (e)=>
+      # return if @editMode
       if @movingHomeScreen
-        e.preventDefault()
         @homescreensScroller.style.transitionDuration = ""
-        newTouch = e.touches[0]
+        newTouch = touchFromEventWithIdentifier(e, @currentTouch.identifier)
         if (newTouch.pageX - @currentTouch.pageX)*2 >= @homescreensScroller.clientWidth
           @gotoHomeScreen(@currentScreen - 1)
         else if (@currentTouch.pageX - newTouch.pageX)*2 >= @homescreensScroller.clientWidth
@@ -281,5 +295,6 @@ class Layout
         else
           @gotoHomeScreen(@currentScreen)
         @movingHomeScreen = no
+        e.preventDefault()
 
 @Layout = Layout
